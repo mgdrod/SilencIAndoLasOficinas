@@ -1,0 +1,1425 @@
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SilencIAndo las oficinas</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            color: #334155;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(14, 165, 233, 0.3);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .main-section {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            margin: -3rem 2rem 2rem 2rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 10;
+        }
+
+        .sectors-section {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .sectors-section h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: #1e293b;
+        }
+
+        .sectors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .sector-card {
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            padding: 2rem;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-top: 4px solid #0ea5e9;
+            text-align: center;
+        }
+
+        .sector-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+            border-top-color: #0284c7;
+        }
+
+        .sector-card h3 {
+            color: #1e293b;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+            text-transform: capitalize;
+        }
+
+        .sector-card .sector-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .sector-card .job-count {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .jobs-section {
+            display: none;
+            margin-bottom: 2rem;
+        }
+
+        .back-button {
+            background: linear-gradient(135deg, #6b7280, #4b5563);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(107, 114, 128, 0.3);
+        }
+
+        .jobs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .job-card {
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            padding: 1.5rem;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 4px solid #0ea5e9;
+        }
+
+        .job-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .job-card h4 {
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .job-card .probability-indicator {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: white;
+            display: inline-block;
+            margin-bottom: 0.5rem;
+        }
+
+        .probability-low { background: linear-gradient(135deg, #10b981, #059669); }
+        .probability-medium { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .probability-high { background: linear-gradient(135deg, #ef4444, #dc2626); }
+
+        .favorites-section {
+            margin-bottom: 3rem;
+        }
+
+        .favorites-toggle {
+            background: linear-gradient(135deg, #0ea5e9, #0284c7);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);
+        }
+
+        .favorites-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(14, 165, 233, 0.4);
+        }
+
+        .favorites-list {
+            display: none;
+            margin-top: 2rem;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .favorite-item {
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            padding: 1.5rem;
+            border-radius: 15px;
+            border-left: 4px solid #0ea5e9;
+            transition: all 0.3s ease;
+        }
+
+        .favorite-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .job-details {
+            display: none;
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-top: 2rem;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.1);
+        }
+
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .job-title {
+            font-size: 2rem;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+
+        .probability-badge {
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: white;
+        }
+
+        .add-favorite {
+            background: linear-gradient(135deg, #0ea5e9, #0284c7);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .add-favorite:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);
+        }
+
+        .charts-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .chart-wrapper {
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 15px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .tasks-section {
+            margin: 2rem 0;
+        }
+
+        .tasks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .task-item {
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            padding: 1rem;
+            border-radius: 10px;
+            border-left: 4px solid #0ea5e9;
+        }
+
+        .task-critical {
+            border-left-color: #10b981;
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+        }
+
+        .resources-section {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            margin: 2rem;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.1);
+        }
+
+        .resources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .resource-card {
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            padding: 2rem;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            border-top: 4px solid #0ea5e9;
+        }
+
+        .resource-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .resource-card h4 {
+            color: #1e293b;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .resource-link {
+            display: inline-block;
+            margin-top: 1rem;
+            color: #0ea5e9;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .resource-link:hover {
+            color: #0284c7;
+        }
+
+        .footer {
+            background: #1e293b;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+
+        @media (max-width: 768px) {
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .main-section {
+                margin: -2rem 1rem 1rem 1rem;
+                padding: 2rem;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .job-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    
+        .compare-section {
+            margin-top: 2rem;
+        }
+        .compare-toggle {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+            border: none;
+            padding: 1rem 1.5rem;
+            border-radius: 50px;
+            font-size: 1.05rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+            margin-left: 0.75rem;
+        }
+        .compare-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+        }
+        .compare-panel {
+            display: none;
+            margin-top: 1rem;
+            background: white;
+            border-radius: 16px;
+            padding: 1rem;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.08);
+            border: 1px solid #e2e8f0;
+        }
+        .compare-selects {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        .compare-selects select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            border: 1px solid #cbd5e1;
+            background: #f8fafc;
+            color: #1e293b;
+            font-size: 0.95rem;
+        }
+        .compare-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        .compare-card {
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            border-radius: 14px;
+            padding: 1rem;
+            border-left: 4px solid #0ea5e9;
+        }
+        .compare-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.25rem;
+        }
+        .compare-sub {
+            color: #64748b;
+            margin-bottom: 0.5rem;
+            text-transform: capitalize;
+        }
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.6rem;
+            border-radius: 999px;
+            color: white;
+            font-weight: 700;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+        }
+        .badge.low { background: #10b981; }
+        .badge.medium { background: #f59e0b; }
+        .badge.high { background: #ef4444; }
+        .pill {
+            display: inline-block;
+            background: white;
+            border: 1px solid #cbd5e1;
+            padding: 0.25rem 0.5rem;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            margin: 0.15rem;
+        }
+        .compare-empty {
+            grid-column: 1 / -1;
+            text-align: center;
+            color: #64748b;
+            padding: 0.75rem 0;
+        }
+
+</style>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <h1>🤖 SilencIAndo las oficinas</h1>
+            <p>Analiza cómo la Inteligencia Artificial está transformando el mercado laboral</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="main-section">
+            <!-- Sección de sectores (pantalla principal) -->
+            <div class="sectors-section" id="sectorsSection">
+                <h2>🎯 Explora empleos por sector</h2>
+                <p style="color: #64748b; margin-bottom: 1rem;">Selecciona un sector para ver los empleos disponibles y su análisis de automatización</p>
+                
+                <div class="sectors-grid">
+                    <div class="sector-card" onclick="showSectorJobs('tecnología')">
+                        <span class="sector-icon">💻</span>
+                        <h3>Tecnología</h3>
+                        <p class="job-count">10 empleos analizados</p>
+                    </div>
+                    
+                    <div class="sector-card" onclick="showSectorJobs('salud')">
+                        <span class="sector-icon">🏥</span>
+                        <h3>Salud</h3>
+                        <p class="job-count">10 empleos analizados</p>
+                    </div>
+                    
+                    <div class="sector-card" onclick="showSectorJobs('educación')">
+                        <span class="sector-icon">📚</span>
+                        <h3>Educación</h3>
+                        <p class="job-count">10 empleos analizados</p>
+                    </div>
+                    
+                    <div class="sector-card" onclick="showSectorJobs('finanzas')">
+                        <span class="sector-icon">💰</span>
+                        <h3>Finanzas</h3>
+                        <p class="job-count">10 empleos analizados</p>
+                    </div>
+                    
+                    
+                    <div class="sector-card" onclick="showSectorJobs('derecho')">
+                        <span class="sector-icon">⚖️</span>
+                        <h3>Justicia (Derecho)</h3>
+                        <p class="job-count">10 empleos analizados</p>
+                    </div>
+    
+                    <div class="sector-card" onclick="showSectorJobs('marketing')">
+                        <span class="sector-icon">📱</span>
+                        <h3>Marketing</h3>
+                        <p class="job-count">10 empleos analizados</p>
+                    </div>
+                    
+                    <div class="sector-card" onclick="showSectorJobs('logística')">
+                        <span class="sector-icon">🚚</span>
+                        <h3>Logística</h3>
+                        <p class="job-count">10 empleos analizados</p>
+                    </div>
+                
+                    <div class="sector-card" onclick="showSectorJobs('ingeniería')">
+                        <span class="sector-icon">🛠️</span>
+                        <h3>Ingeniería</h3>
+                        <p class="job-count">10 empleos analizados</p>
+                    </div>
+
+                    <div class="sector-card" onclick="showSectorJobs('construcción')">
+                        <span class="sector-icon">🏗️</span>
+                        <h3>Construcción</h3>
+                        <p class="job-count">10 empleos analizados</p>
+                    </div>
+
+                    <div class="sector-card" onclick="showSectorJobs('turismo')">
+                        <span class="sector-icon">🏨</span>
+                        <h3>Hostelería y Turismo</h3>
+                        <p class="job-count">10 empleos analizados</p>
+                    </div>
+
+                    <div class="sector-card" onclick="showSectorJobs('industria')">
+                        <span class="sector-icon">⚙️</span>
+                        <h3>Industria y Manufactura</h3>
+                        <p class="job-count">10 empleos analizados</p>
+                    </div>
+
+                    <div class="sector-card" onclick="showSectorJobs('energía')">
+                        <span class="sector-icon">🔋</span>
+                        <h3>Energía y Medio Ambiente</h3>
+                        <p class="job-count">10 empleos analizados</p>
+                    </div>
+
+                    <div class="sector-card" onclick="showSectorJobs('arte')">
+                        <span class="sector-icon">🎬</span>
+                        <h3>Arte, Medios y Comunicación</h3>
+                        <p class="job-count">10 empleos analizados</p>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Sección de empleos por sector -->
+            <div class="jobs-section" id="jobsSection">
+                <button class="back-button" onclick="goBackToSectors()">← Volver a sectores</button>
+                <h2 id="sectorTitle">Empleos en el sector</h2>
+                <div class="jobs-grid" id="jobsGrid"></div>
+            </div>
+
+            <div class="favorites-section">
+                <button class="favorites-toggle" onclick="toggleFavorites()">
+                    ⭐️
+                    ⭐ Ver empleos favoritos (<span id="favCount">0</span>)
+                </button>
+                <div class="favorites-list" id="favoritesList"></div>
+            </div>
+
+            <div class="job-details" id="jobDetails"></div>
+        </div>
+    </div>
+
+    <div class="resources-section">
+        <div class="container">
+            <h2 style="text-align: center; font-size: 2rem; margin-bottom: 1rem; color: #1e293b;">
+                📚 Recursos para mantenerte informado
+            </h2>
+            <p style="text-align: center; margin-bottom: 2rem; color: #64748b;">
+                Mantente al día con las últimas tendencias y avances en IA y automatización laboral
+            </p>
+
+            <div class="resources-grid">
+                <div class="resource-card">
+                    <h4>📰 Noticias y Artículos</h4>
+                    <p>Mantente informado sobre los últimos desarrollos en IA y automatización laboral.</p>
+                    <a href="https://www.technologyreview.com/topic/artificial-intelligence/" class="resource-link" target="_blank">MIT Technology Review - IA</a><br>
+                    <a href="https://www.wired.com/tag/artificial-intelligence/" class="resource-link" target="_blank">WIRED - Inteligencia Artificial</a><br>
+                    <a href="https://www.xataka.com/inteligencia-artificial" class="resource-link" target="_blank">Xataka - IA (Español)</a>
+                </div>
+
+                <div class="resource-card">
+                    <h4>🎥 Videos y Documentales</h4>
+                    <p>Contenido audiovisual sobre el impacto de la IA en el trabajo del futuro.</p>
+                    <a href="https://www.youtube.com/results?search_query=future+of+work+AI" class="resource-link" target="_blank">YouTube - Future of Work & AI</a><br>
+                    <a href="https://www.ted.com/talks?topics[]=ai" class="resource-link" target="_blank">TED Talks - Inteligencia Artificial</a><br>
+                    <a href="https://www.netflix.com/search?q=artificial%20intelligence" class="resource-link" target="_blank">Netflix - Documentales sobre IA</a>
+                </div>
+
+                <div class="resource-card">
+                    <h4>📊 Estudios e Informes</h4>
+                    <p>Investigaciones y análisis profundos sobre automatización y empleo.</p>
+                    <a href="https://www.mckinsey.com/featured-insights/future-of-work" class="resource-link" target="_blank">McKinsey - Future of Work</a><br>
+                    <a href="https://www.weforum.org/reports/the-future-of-jobs-report-2023" class="resource-link" target="_blank">WEF - Future of Jobs Report</a><br>
+                    <a href="https://www.oecd.org/employment/future-of-work/" class="resource-link" target="_blank">OECD - Future of Work</a>
+                </div>
+
+                <div class="resource-card">
+                    <h4>🛠️ Herramientas de Análisis</h4>
+                    <p>Plataformas para evaluar tu perfil profesional y adaptarte al cambio.</p>
+                    <a href="https://www.willrobotstakemyjob.com/" class="resource-link" target="_blank">Will Robots Take My Job?</a><br>
+                    <a href="https://www.replacedbyrobot.info/" class="resource-link" target="_blank">Replaced by Robot</a><br>
+                    <a href="https://www.jobscan.co/" class="resource-link" target="_blank">JobScan - Optimiza tu CV</a>
+                </div>
+
+                <div class="resource-card">
+                    <h4>📖 Cursos y Formación</h4>
+                    <p>Desarrolla nuevas habilidades para mantenerte relevante en el mercado laboral.</p>
+                    <a href="https://www.coursera.org/browse/data-science/machine-learning" class="resource-link" target="_blank">Coursera - Machine Learning</a><br>
+                    <a href="https://www.edx.org/learn/artificial-intelligence" class="resource-link" target="_blank">edX - Inteligencia Artificial</a><br>
+                    <a href="https://www.udacity.com/school-of-ai" class="resource-link" target="_blank">Udacity - School of AI</a>
+                </div>
+
+                <div class="resource-card">
+                    <h4>💼 Adaptación Profesional</h4>
+                    <p>Consejos y estrategias para reinventarte profesionalmente.</p>
+                    <a href="https://hbr.org/topic/future-of-work" class="resource-link" target="_blank">Harvard Business Review - Future of Work</a><br>
+                    <a href="https://www.linkedin.com/learning/topics/artificial-intelligence" class="resource-link" target="_blank">LinkedIn Learning - IA</a><br>
+                    <a href="https://www.fastcompany.com/section/ai-machine-learning" class="resource-link" target="_blank">Fast Company - AI & ML</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="container">
+            <p>© 2025 SilencIAndo las oficinas - Navegando el futuro del trabajo en la era de la IA</p>
+        </div>
+    </div>
+
+    <script>
+        // Base de datos simulada de empleos por sector (ordenados por popularidad)
+        const jobDatabase = {
+            'tecnología': [
+                { name: 'Desarrollador de Software', probability: 25, sector: 'tecnología' },
+                { name: 'Analista de Sistemas', probability: 40, sector: 'tecnología' },
+                { name: 'Ingeniero de Software', probability: 20, sector: 'tecnología' },
+                { name: 'Data Scientist', probability: 35, sector: 'tecnología' },
+                { name: 'Administrador de Sistemas', probability: 45, sector: 'tecnología' },
+                { name: 'Ingeniero DevOps', probability: 30, sector: 'tecnología' },
+                { name: 'Diseñador UX/UI', probability: 20, sector: 'tecnología' },
+                { name: 'Cybersecurity Specialist', probability: 15, sector: 'tecnología' },
+                { name: 'Product Manager', probability: 25, sector: 'tecnología' },
+                { name: 'Arquitecto de Software', probability: 18, sector: 'tecnología' }
+            ],
+            'salud': [
+                { name: 'Enfermero/a', probability: 25, sector: 'salud' },
+                { name: 'Médico Generalista', probability: 20, sector: 'salud' },
+                { name: 'Médico Especialista', probability: 15, sector: 'salud' },
+                { name: 'Auxiliar de Enfermería', probability: 35, sector: 'salud' },
+                { name: 'Fisioterapeuta', probability: 20, sector: 'salud' },
+                { name: 'Farmacéutico', probability: 50, sector: 'salud' },
+                { name: 'Radiólogo', probability: 65, sector: 'salud' },
+                { name: 'Técnico de Laboratorio', probability: 70, sector: 'salud' },
+                { name: 'Psicólogo Clínico', probability: 15, sector: 'salud' },
+                { name: 'Dentista', probability: 25, sector: 'salud' }
+            ],
+	    'derecho': [
+                { name: 'Investigador jurídico', probability: 40, sector: 'derecho' },
+                { name: 'Fiscal / Ministerio Público', probability: 20, sector: 'derecho' },
+                { name: 'Secretario judicial', probability: 80, sector: 'derecho' },
+                { name: 'Asistente legal', probability: 70, sector: 'derecho' },
+                { name: 'Abogado penal', probability: 15, sector: 'derecho' },
+                { name: 'Abogado de contratos', probability: 45, sector: 'derecho' },
+                { name: 'Abogado corporativo', probability: 30, sector: 'derecho' },
+                { name: 'Notario', probability: 25, sector: 'derecho' },
+                { name: 'Asesor legal empresarial', probability: 40, sector: 'derecho' },
+                { name: 'Abogado laboral', probability: 35, sector: 'derecho' }
+            ],
+            'educación': [
+                { name: 'Profesor de Primaria', probability: 30, sector: 'educación' },
+                { name: 'Profesor de Secundaria', probability: 35, sector: 'educación' },
+                { name: 'Profesor Universitario', probability: 25, sector: 'educación' },
+                { name: 'Educador Infantil', probability: 20, sector: 'educación' },
+                { name: 'Formador Corporativo', probability: 40, sector: 'educación' },
+                { name: 'Tutor Online', probability: 60, sector: 'educación' },
+                { name: 'Consejero Académico', probability: 35, sector: 'educación' },
+                { name: 'Investigador Educativo', probability: 40, sector: 'educación' },
+                { name: 'Coordinador Académico', probability: 45, sector: 'educación' },
+                { name: 'Especialista en e-Learning', probability: 50, sector: 'educación' }
+            ],
+            'finanzas': [
+                { name: 'Contador', probability: 85, sector: 'finanzas' },
+                { name: 'Analista Financiero', probability: 75, sector: 'finanzas' },
+                { name: 'Asesor Financiero Personal', probability: 40, sector: 'finanzas' },
+                { name: 'Auditor', probability: 80, sector: 'finanzas' },
+                { name: 'Gestor de Riesgos', probability: 50, sector: 'finanzas' },
+                { name: 'Trader', probability: 80, sector: 'finanzas' },
+                { name: 'Analista de Crédito', probability: 75, sector: 'finanzas' },
+                { name: 'Controller Financiero', probability: 65, sector: 'finanzas' },
+                { name: 'Planificador Financiero', probability: 45, sector: 'finanzas' },
+                { name: 'Especialista en Inversiones', probability: 55, sector: 'finanzas' }
+            ],
+            'marketing': [
+                { name: 'Community Manager', probability: 55, sector: 'marketing' },
+                { name: 'Especialista en SEO', probability: 60, sector: 'marketing' },
+                { name: 'Marketing Digital Manager', probability: 45, sector: 'marketing' },
+                { name: 'Estratega de Contenidos', probability: 45, sector: 'marketing' },
+                { name: 'Analista de Marketing Digital', probability: 70, sector: 'marketing' },
+                { name: 'Director Creativo', probability: 25, sector: 'marketing' },
+                { name: 'Especialista en SEM/PPC', probability: 65, sector: 'marketing' },
+                { name: 'Brand Manager', probability: 35, sector: 'marketing' },
+                { name: 'Growth Hacker', probability: 50, sector: 'marketing' },
+                { name: 'Email Marketing Specialist', probability: 75, sector: 'marketing' }
+            ],
+            'logística': [
+                { name: 'Conductor de Camión', probability: 90, sector: 'logística' },
+                { name: 'Operario de Almacén', probability: 85, sector: 'logística' },
+                { name: 'Repartidor', probability: 85, sector: 'logística' },
+                { name: 'Coordinador Logístico', probability: 55, sector: 'logística' },
+                { name: 'Planificador de Rutas', probability: 80, sector: 'logística' },
+                { name: 'Supervisor de Distribución', probability: 45, sector: 'logística' },
+                { name: 'Gestor de Inventario', probability: 70, sector: 'logística' },
+                { name: 'Especialista en Cadena de Suministro', probability: 50, sector: 'logística' },
+                { name: 'Operador de Grúa/Montacargas', probability: 80, sector: 'logística' },
+                { name: 'Analista de Logística', probability: 60, sector: 'logística' }
+            ]
+            ,'ingeniería': [
+                { name: 'Ingeniero Aeroespacial', probability: 25, sector: 'ingeniería' },
+                { name: 'Ingeniero Industrial', probability: 35, sector: 'ingeniería' },
+                { name: 'Ingeniero Mecánico', probability: 40, sector: 'ingeniería' },
+                { name: 'Ingeniero Eléctrico', probability: 38, sector: 'ingeniería' },
+                { name: 'Ingeniero Electrónico', probability: 45, sector: 'ingeniería' },
+                { name: 'Ingeniero de Energías Renovables', probability: 30, sector: 'ingeniería' },
+                { name: 'Ingeniero de Telecomunicaciones', probability: 28, sector: 'ingeniería' },
+                { name: 'Ingeniero de Datos', probability: 32, sector: 'ingeniería' },
+                { name: 'Ingeniero de Calidad', probability: 55, sector: 'ingeniería' },
+                { name: 'Ingeniero de I+D', probability: 22, sector: 'ingeniería' }
+            ],
+            'construcción': [
+                { name: 'Arquitecto', probability: 35, sector: 'construcción' },
+                { name: 'Ingeniero Civil', probability: 40, sector: 'construcción' },
+                { name: 'Jefe de Obra', probability: 50, sector: 'construcción' },
+                { name: 'Aparejador / Arquitecto Técnico', probability: 45, sector: 'construcción' },
+                { name: 'Técnico PRL (Obra)', probability: 55, sector: 'construcción' },
+                { name: 'Topógrafo', probability: 60, sector: 'construcción' },
+                { name: 'BIM Manager', probability: 48, sector: 'construcción' },
+                { name: 'Oficial de Albañilería', probability: 70, sector: 'construcción' },
+                { name: 'Electricista de Obra', probability: 65, sector: 'construcción' },
+                { name: 'Fontanero de Obra', probability: 68, sector: 'construcción' }
+            ],
+            'turismo': [
+                { name: 'Camarero/a', probability: 75, sector: 'turismo' },
+                { name: 'Cocinero/a', probability: 55, sector: 'turismo' },
+                { name: 'Recepcionista de Hotel', probability: 80, sector: 'turismo' },
+                { name: 'Guía Turístico', probability: 35, sector: 'turismo' },
+                { name: 'Gobernanta/e de Hotel', probability: 60, sector: 'turismo' },
+                { name: 'Conserje', probability: 65, sector: 'turismo' },
+                { name: 'Barista / Bartender', probability: 70, sector: 'turismo' },
+                { name: 'Agente de Viajes', probability: 85, sector: 'turismo' },
+                { name: 'Animador Turístico', probability: 45, sector: 'turismo' },
+                { name: 'Gestor de Eventos', probability: 50, sector: 'turismo' }
+            ],
+            'industria': [
+                { name: 'Operario de Producción', probability: 90, sector: 'industria' },
+                { name: 'Técnico de Mantenimiento', probability: 55, sector: 'industria' },
+                { name: 'Supervisor de Planta', probability: 50, sector: 'industria' },
+                { name: 'Soldador', probability: 75, sector: 'industria' },
+                { name: 'Técnico de Control de Calidad', probability: 65, sector: 'industria' },
+                { name: 'Operador CNC', probability: 80, sector: 'industria' },
+                { name: 'Planificador de Producción', probability: 60, sector: 'industria' },
+                { name: 'Ingeniero de Procesos', probability: 45, sector: 'industria' },
+                { name: 'Responsable de Mantenimiento', probability: 52, sector: 'industria' },
+                { name: 'Técnico en Robótica Industrial', probability: 35, sector: 'industria' }
+            ],
+            'energía': [
+                { name: 'Instalador de Placas Solares', probability: 50, sector: 'energía' },
+                { name: 'Técnico Eólico', probability: 55, sector: 'energía' },
+                { name: 'Gestor Ambiental', probability: 40, sector: 'energía' },
+                { name: 'Analista de Eficiencia Energética', probability: 45, sector: 'energía' },
+                { name: 'Operador de Planta Energética', probability: 70, sector: 'energía' },
+                { name: 'Ingeniero de Medio Ambiente', probability: 35, sector: 'energía' },
+                { name: 'Especialista en Gestión de Residuos', probability: 60, sector: 'energía' },
+                { name: 'Auditor Energético', probability: 58, sector: 'energía' },
+                { name: 'Técnico de Redes Eléctricas', probability: 62, sector: 'energía' },
+                { name: 'Project Manager Renovables', probability: 42, sector: 'energía' }
+            ],
+            'arte': [
+                { name: 'Periodista', probability: 70, sector: 'arte' },
+                { name: 'Diseñador Gráfico', probability: 60, sector: 'arte' },
+                { name: 'Productor Audiovisual', probability: 55, sector: 'arte' },
+                { name: 'Fotógrafo', probability: 65, sector: 'arte' },
+                { name: 'Editor de Vídeo', probability: 72, sector: 'arte' },
+                { name: 'Guionista', probability: 50, sector: 'arte' },
+                { name: 'Locutor / Presentador', probability: 45, sector: 'arte' },
+                { name: 'Ilustrador', probability: 58, sector: 'arte' },
+                { name: 'Community Manager Creativo', probability: 62, sector: 'arte' },
+                { name: 'Director de Arte', probability: 35, sector: 'arte' }
+            ]
+
+        };
+
+        // Detalles específicos de cada empleo
+        const jobDetails = {
+            'Desarrollador de Software': {
+                criticalTasks: ['Resolución creativa de problemas', 'Arquitectura de sistemas complejos', 'Mentoring y liderazgo técnico', 'Innovación y experimentación'],
+                automatedTasks: ['Testing automatizado', 'Generación de código repetitivo', 'Documentación básica'],
+                skills: ['Creatividad', 'Pensamiento crítico', 'Comunicación técnica', 'Adaptabilidad'],
+                description: 'Los desarrolladores mantienen su relevancia a través de la creatividad, resolución de problemas complejos y habilidades de liderazgo técnico.'
+            },
+            'Médico Especialista': {
+                criticalTasks: ['Diagnóstico complejo', 'Empatía y comunicación con pacientes', 'Toma de decisiones críticas', 'Procedimientos especializados'],
+                automatedTasks: ['Análisis de imágenes médicas básicas', 'Transcripción de notas', 'Programación de citas'],
+                skills: ['Empatía', 'Juicio clínico', 'Comunicación interpersonal', 'Adaptabilidad'],
+                description: 'La medicina requiere empatía humana, juicio clínico complejo y habilidades interpersonales que la IA no puede replicar completamente.'
+            },
+            'Analista Financiero': {
+                criticalTasks: ['Estrategia financiera compleja', 'Relaciones con clientes', 'Interpretación contextual', 'Gestión de riesgos no cuantificables'],
+                automatedTasks: ['Análisis de datos básicos', 'Reporting automatizado', 'Cálculos estándar'],
+                skills: ['Pensamiento estratégico', 'Comunicación', 'Adaptabilidad', 'Juicio contextual'],
+                description: 'Aunque muchas tareas analíticas pueden automatizarse, la estrategia y las relaciones humanas siguen siendo cruciales.'
+            },
+            'Ingeniero DevOps': {
+                criticalTasks: ['Arquitectura de infraestructura', 'Resolución de incidentes críticos', 'Estrategia de seguridad', 'Mentoring técnico'],
+                automatedTasks: ['Despliegues rutinarios', 'Monitorización básica', 'Backups automatizados'],
+                skills: ['Resolución de problemas', 'Comunicación técnica', 'Adaptabilidad', 'Liderazgo'],
+                description: 'Los DevOps combinan habilidades técnicas profundas con capacidad de comunicación y liderazgo que son difíciles de automatizar.'
+            },
+            'Data Scientist': {
+                criticalTasks: ['Interpretación contextual de datos', 'Diseño experimental', 'Comunicación de insights', 'Estrategia de negocio'],
+                automatedTasks: ['Limpieza de datos', 'Modelos ML estándar', 'Visualizaciones básicas'],
+                skills: ['Pensamiento crítico', 'Comunicación', 'Creatividad', 'Conocimiento del negocio'],
+                description: 'Aunque la IA puede procesar datos, la interpretación contextual y la estrategia requieren comprensión humana profunda.'
+            },
+            'Diseñador UX/UI': {
+                criticalTasks: ['Investigación de usuarios', 'Empatía y comprensión humana', 'Creatividad conceptual', 'Iteración estratégica'],
+                automatedTasks: ['Generación de wireframes básicos', 'Optimización de layouts', 'Testing A/B automatizado'],
+                skills: ['Empatía', 'Creatividad', 'Pensamiento sistémico', 'Comunicación visual'],
+                description: 'El diseño UX requiere empatía humana profunda y comprensión de comportamientos complejos que la IA aún no domina.'
+            },
+            'Enfermero/a': {
+                criticalTasks: ['Cuidado empático', 'Evaluación clínica compleja', 'Comunicación con familias', 'Toma de decisiones críticas'],
+                automatedTasks: ['Registro de medicación', 'Monitorización de signos vitales', 'Programación de citas'],
+                skills: ['Empatía', 'Comunicación interpersonal', 'Juicio clínico', 'Resistencia emocional'],
+                description: 'La enfermería es fundamentalmente humana, requiriendo empatía, comunicación y cuidado que no puede ser replicado por máquinas.'
+            },
+            'Profesor de Primaria': {
+                criticalTasks: ['Motivación individual', 'Gestión emocional', 'Creatividad pedagógica', 'Adaptación personalizada'],
+                automatedTasks: ['Corrección de ejercicios básicos', 'Seguimiento de progreso', 'Contenido estándar'],
+                skills: ['Empatía', 'Creatividad pedagógica', 'Paciencia', 'Adaptabilidad'],
+                description: 'La enseñanza requiere conexión emocional, motivación personalizada y adaptación que solo los humanos pueden proporcionar.'
+            }
+        };
+
+        let favorites = JSON.parse(localStorage.getItem('jobFavorites') || '[]');
+        let currentChart = null;
+        let currentSkillsChart = null;
+
+        function showSectorJobs(sector) {
+            document.getElementById('sectorsSection').style.display = 'none';
+            document.getElementById('jobsSection').style.display = 'block';
+            
+            const sectorTitle = document.getElementById('sectorTitle');
+            const jobsGrid = document.getElementById('jobsGrid');
+            
+            sectorTitle.textContent = `Empleos en ${sector.charAt(0).toUpperCase() + sector.slice(1)}`;
+            
+            const jobs = jobDatabase[sector] || [];
+            
+            jobsGrid.innerHTML = jobs.map(job => {
+                const probabilityClass = job.probability <= 33 ? 'low' : 
+                                       job.probability <= 66 ? 'medium' : 'high';
+                const probabilityText = job.probability <= 33 ? 'Baja' : 
+                                      job.probability <= 66 ? 'Media' : 'Alta';
+
+                return `
+                    <div class="job-card" onclick="showJobDetails('${job.name}')">
+                        <h4>${job.name}</h4>
+                        <div class="probability-indicator probability-${probabilityClass}">
+                            ${job.probability}% - ${probabilityText}
+                        </div>
+                        <p style="color: #64748b; font-size: 0.9rem; margin-top: 0.5rem;">
+                            Haz clic para ver análisis detallado
+                        </p>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function goBackToSectors() {
+            document.getElementById('jobsSection').style.display = 'none';
+            document.getElementById('sectorsSection').style.display = 'block';
+            document.getElementById('jobDetails').style.display = 'none';
+        }
+
+        function showJobDetails(jobName) {
+            // Buscar el trabajo en la base de datos
+            let selectedJob = null;
+            for (const sector in jobDatabase) {
+                const job = jobDatabase[sector].find(j => j.name === jobName);
+                if (job) {
+                    selectedJob = job;
+                    break;
+                }
+            }
+
+            if (!selectedJob) return;
+
+            const jobDetailsContainer = document.getElementById('jobDetails');
+            const details = getPersonalizedDetails(selectedJob);
+
+            const probabilityClass = selectedJob.probability <= 33 ? 'low' : 
+                                   selectedJob.probability <= 66 ? 'medium' : 'high';
+
+            const probabilityText = selectedJob.probability <= 33 ? 'Baja' : 
+                                  selectedJob.probability <= 66 ? 'Media' : 'Alta';
+
+            jobDetailsContainer.innerHTML = `
+                <div class="job-header">
+                    <div>
+                        <div class="job-title">${selectedJob.name}</div>
+                        <div style="color: #64748b; text-transform: capitalize;">Sector: ${selectedJob.sector}</div>
+                    </div>
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        <div class="probability-badge probability-${probabilityClass}">
+                            Probabilidad de automatización: ${selectedJob.probability}% - ${probabilityText}
+                        </div>
+                        <button class="add-favorite" onclick="addToFavorites('${selectedJob.name}')">
+                            ⭐ Añadir a favoritos
+                        </button>
+                    </div>
+                </div>
+
+                <p style="margin-bottom: 2rem; font-size: 1.1rem; color: #64748b;">${details.description}</p>
+
+                <div style="display: flex; justify-content: center; margin: 2rem 0;">
+                    <div class="chart-wrapper" style="max-width: 400px; text-align: center;">
+                        <h4 style="margin-bottom: 1rem; color: #1e293b;">Probabilidad de Automatización</h4>
+                        <canvas id="probabilityChart" width="300" height="300"></canvas>
+                    </div>
+                </div>
+
+                <div class="tasks-section">
+                    <h3 style="color: #1e293b; margin-bottom: 1rem;">🛡️ Tareas que te hacen menos reemplazable</h3>
+                    <div class="tasks-grid">
+                        ${details.criticalTasks.map(task => 
+                            `<div class="task-item task-critical">
+                                <strong>${task}</strong>
+                                <p style="margin-top: 0.5rem; font-size: 0.9rem; color: #065f46;">
+                                    Requiere creatividad y juicio humano
+                                </p>
+                            </div>`
+                        ).join('')}
+                    </div>
+                </div>
+
+                <div class="tasks-section">
+                    <h3 style="color: #1e293b; margin-bottom: 1rem;">⚡ Tareas susceptibles de automatización</h3>
+                    <div class="tasks-grid">
+                        ${details.automatedTasks.map(task => 
+                            `<div class="task-item">
+                                <strong>${task}</strong>
+                                <p style="margin-top: 0.5rem; font-size: 0.9rem; color: #64748b;">
+                                    Puede ser automatizada con IA
+                                </p>
+                            </div>`
+                        ).join('')}
+                    </div>
+                </div>
+            `;
+
+            jobDetailsContainer.style.display = 'block';
+
+            // Crear gráficos
+            setTimeout(() => createCharts(selectedJob, details), 100);
+        }
+
+        function createCharts(job, details) {
+            // Destruir gráfico anterior
+            if (currentChart) currentChart.destroy();
+
+            // Gráfico de probabilidad con número en el centro
+            const ctx1 = document.getElementById('probabilityChart').getContext('2d');
+            currentChart = new Chart(ctx1, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Automatizable', 'Humano'],
+                    datasets: [{
+                        data: [job.probability, 100 - job.probability],
+                        backgroundColor: [
+                            job.probability <= 33 ? '#10b981' : job.probability <= 66 ? '#f59e0b' : '#ef4444',
+                            '#e2e8f0'
+                        ],
+                        borderWidth: 0,
+                        cutout: '70%'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        }
+                    }
+                },
+                plugins: [{
+                    beforeDraw: function(chart) {
+                        const width = chart.width,
+                              height = chart.height,
+                              ctx = chart.ctx;
+                        
+                        ctx.restore();
+                        const fontSize = (height / 114).toFixed(2);
+                        ctx.font = fontSize + "em sans-serif";
+                        ctx.textBaseline = "middle";
+                        ctx.fillStyle = job.probability <= 33 ? '#10b981' : job.probability <= 66 ? '#f59e0b' : '#ef4444';
+                        
+                        const text = job.probability + "%",
+                              textX = Math.round((width - ctx.measureText(text).width) / 2),
+                              textY = height / 2;
+                        
+                        ctx.fillText(text, textX, textY);
+                        ctx.save();
+                    }
+                }]
+            });
+        }
+
+        function addToFavorites(jobName) {
+            if (!favorites.includes(jobName)) {
+                favorites.push(jobName);
+                localStorage.setItem('jobFavorites', JSON.stringify(favorites));
+                updateFavoritesCount();
+                
+                // Mostrar mensaje de confirmación
+                const button = event.target;
+                const originalText = button.textContent;
+                button.textContent = '✅ Añadido a favoritos';
+                button.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.style.background = 'linear-gradient(135deg, #0ea5e9, #0284c7)';
+                }, 2000);
+            } else {
+                alert('Este empleo ya está en tus favoritos');
+            }
+        }
+
+        function toggleFavorites() {
+            const favoritesList = document.getElementById('favoritesList');
+            const isVisible = favoritesList.style.display === 'grid';
+            
+            if (isVisible) {
+                favoritesList.style.display = 'none';
+            } else {
+                displayFavorites();
+                favoritesList.style.display = 'grid';
+            }
+        }
+
+        function displayFavorites() {
+            const favoritesList = document.getElementById('favoritesList');
+            
+            if (favorites.length === 0) {
+                favoritesList.innerHTML = '<p style="text-align: center; color: #64748b; grid-column: 1 / -1;">No tienes empleos favoritos aún. ¡Explora los sectores y añade algunos!</p>';
+                return;
+            }
+
+            const favoriteJobs = [];
+            favorites.forEach(favName => {
+                for (const sector in jobDatabase) {
+                    const job = jobDatabase[sector].find(j => j.name === favName);
+                    if (job) {
+                        favoriteJobs.push(job);
+                        break;
+                    }
+                }
+            });
+
+            favoritesList.innerHTML = favoriteJobs.map(job => {
+                const probabilityClass = job.probability <= 33 ? 'low' : 
+                                       job.probability <= 66 ? 'medium' : 'high';
+                const probabilityText = job.probability <= 33 ? 'Baja' : 
+                                      job.probability <= 66 ? 'Media' : 'Alta';
+
+                return `
+                    <div class="favorite-item">
+                        <h4 style="color: #1e293b; margin-bottom: 0.5rem;">${job.name}</h4>
+                        <p style="color: #64748b; margin-bottom: 1rem; text-transform: capitalize;">Sector: ${job.sector}</p>
+                        <div class="probability-badge probability-${probabilityClass}" style="display: inline-block; margin-bottom: 1rem; padding: 0.3rem 1rem; font-size: 0.9rem;">
+                            ${job.probability}% - ${probabilityText}
+                        </div>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button onclick="showJobDetails('${job.name}')" style="flex: 1; padding: 0.5rem; background: #0ea5e9; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                                Ver detalles
+                            </button>
+                            <button onclick="removeFromFavorites('${job.name}')" style="padding: 0.5rem; background: #ef4444; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function removeFromFavorites(jobName) {
+            favorites = favorites.filter(fav => fav !== jobName);
+            localStorage.setItem('jobFavorites', JSON.stringify(favorites));
+            updateFavoritesCount();
+            displayFavorites();
+        }
+
+        function updateFavoritesCount() {
+            document.getElementById('favCount').textContent = favorites.length;
+        }
+
+        // Inicializar contador de favoritos al cargar la página
+        updateFavoritesCount();
+
+        // Completar detalles de empleos faltantes con datos por defecto
+        const allJobs = [];
+        for (const sector in jobDatabase) {
+            jobDatabase[sector].forEach(job => {
+                if (!jobDetails[job.name]) {
+                    jobDetails[job.name] = {
+                        criticalTasks: ['Análisis complejo', 'Toma de decisiones estratégicas', 'Comunicación interpersonal', 'Creatividad e innovación'],
+                        automatedTasks: ['Tareas administrativas', 'Procesamiento de datos básicos', 'Reportes rutinarios'],
+                        skills: ['Pensamiento crítico', 'Comunicación', 'Adaptabilidad', 'Liderazgo'],
+                        description: `Este trabajo en el sector ${job.sector} combina habilidades técnicas y humanas para mantener su relevancia en la era de la IA.`
+                    };
+                }
+            });
+        }
+
+        // Mostrar mensaje de bienvenida
+        setTimeout(() => {
+            if (!localStorage.getItem('welcomed')) {
+                alert('¡Bienvenido a SilencIAndo las oficinas! 🤖\n\nExplora cómo la IA está transformando diferentes sectores laborales. Selecciona un sector, analiza los empleos y sus probabilidades de automatización, y guarda tus favoritos para hacer seguimiento.');
+                localStorage.setItem('welcomed', 'true');
+            }
+        }, 1000);
+    
+        function getAllJobsFlat() {
+            const list = [];
+            for (const sector in jobDatabase) {
+                jobDatabase[sector].forEach(j => list.append ? list.append(j) : list.push(j));
+            }
+            return list;
+        }
+
+        function toggleCompare() {
+            const panel = document.getElementById('comparePanel');
+            if (panel.style.display === 'block') {
+                panel.style.display = 'none';
+                return;
+            }
+            panel.style.display = 'block';
+            populateCompareSelects();
+        }
+
+        function populateCompareSelects() {
+            const all = getAllJobsFlat();
+            const selA = document.getElementById('compareA');
+            const selB = document.getElementById('compareB');
+
+            // Reset options (preserve the first placeholder)
+            selA.innerHTML = '<option value="">Selecciona primer empleo…</option>';
+            selB.innerHTML = '<option value="">Selecciona segundo empleo…</option>';
+
+            // Sort by sector then name for easier scanning
+            all.sort((a, b) => (a.sector.localeCompare(b.sector) || a.name.localeCompare(b.name)));
+
+            all.forEach(job => {
+                const label = `${job.name} — ${job.sector}`;
+                const optA = document.createElement('option');
+                optA.value = job.name;
+                optA.textContent = label;
+                selA.appendChild(optA);
+
+                const optB = document.createElement('option');
+                optB.value = job.name;
+                optB.textContent = label;
+                selB.appendChild(optB);
+            });
+        }
+
+        function findJobByName(name) {
+            for (const sector in jobDatabase) {
+                const f = jobDatabase[sector].find(j => j.name === name);
+                if (f) return f;
+            }
+            return null;
+        }
+
+        function probClass(p) {
+            return p <= 33 ? 'low' : (p <= 66 ? 'medium' : 'high');
+        }
+
+        function renderComparison() {
+            const a = document.getElementById('compareA').value;
+            const b = document.getElementById('compareB').value;
+            const grid = document.getElementById('compareGrid');
+
+            if (!a || !b || a === b) {
+                grid.innerHTML = '<div class="compare-empty">Elige dos empleos distintos para comparar.</div>';
+                return;
+            }
+
+            const jobA = findJobByName(a);
+            const jobB = findJobByName(b);
+            if (!jobA || !jobB) {
+                grid.innerHTML = '<div class="compare-empty">No se han encontrado los empleos seleccionados.</div>';
+                return;
+            }
+
+            const detA = getPersonalizedDetails(jobA);
+            const detB = getPersonalizedDetails(jobB);
+
+            const cardHtml = (job, det) => {
+                const cls = probClass(job.probability);
+                const probText = job.probability <= 33 ? 'Baja' : (job.probability <= 66 ? 'Media' : 'Alta');
+                return `
+                    <div class="compare-card">
+                        <div class="compare-title">${job.name}</div>
+                        <div class="compare-sub">Sector: ${job.sector}</div>
+                        <span class="badge ${cls}">${job.probability}% · ${probText}</span>
+                        <div style="margin: 0.5rem 0 0.5rem; font-size: 0.9rem; color:#475569;">${det.description || ''}</div>
+                        <div style="margin-top:0.5rem;">
+                            <div style="font-weight:700; color:#1e293b; margin-bottom: 0.25rem;">🛡️ Fortalezas humanas</div>
+                            <div>${det.criticalTasks.map(t => `<span class="pill">${t}</span>`).join('') || '<em style="color:#94a3b8;">—</em>'}</div>
+                        </div>
+                        <div style="margin-top:0.5rem;">
+                            <div style="font-weight:700; color:#1e293b; margin-bottom: 0.25rem;">⚡ Automatizable</div>
+                            <div>${det.automatedTasks.map(t => `<span class="pill">${t}</span>`).join('') || '<em style="color:#94a3b8;">—</em>'}</div>
+                        </div>
+                        <div style="margin-top:0.5rem;">
+                            <div style="font-weight:700; color:#1e293b; margin-bottom: 0.25rem;">🧩 Habilidades clave</div>
+                            <div>${det.skills.map(s => `<span class="pill">${s}</span>`).join('') || '<em style="color:#94a3b8;">—</em>'}</div>
+                        </div>
+                    </div>
+                `;
+            };
+
+            grid.innerHTML = cardHtml(jobA, detA) + cardHtml(jobB, detB);
+        }
+
+
+        // ===== Personalization engine for tasks & descriptions =====
+        const taskPools = {
+          'tecnología': {
+            critical: ['Diseño de arquitecturas', 'Priorización de producto', 'Comunicación con stakeholders', 'Mentoría de equipo', 'Resolución creativa de bugs', 'Ética y cumplimiento', 'Toma de decisiones con incertidumbre', 'Definición de KPIs'],
+            automated: ['Generación de código repetitivo', 'Pruebas unitarias básicas', 'Refactorizaciones mecánicas', 'Documentación estándar', 'Scraping rutinario', 'ETL repetitivo'],
+            skills: ['Pensamiento sistémico', 'Comunicación', 'Storytelling técnico', 'Negocio + datos']
+          },
+          'salud': {
+            critical: ['Exploración clínica', 'Empatía y trato al paciente', 'Juicio diagnóstico complejo', 'Coordinación multidisciplinar', 'Consentimiento informado', 'Comunicación de malas noticias', 'Experiencia previa verificable', 'Criterio humano inapelable'],
+            automated: ['Triaje básico', 'Burocracia clínica', 'Codificación CIE', 'Lectura de pruebas estándar', 'Recordatorios de medicación'],
+            skills: ['Razonamiento clínico', 'Gestión del estrés', 'Trabajo en equipo']
+          },
+          'educación': {
+            critical: ['Gestión del aula', 'Motivación y clima emocional', 'Adaptación curricular', 'Evaluación formativa', 'Feedback cualitativo', 'Diseño de proyectos', 'Experiencia docente contrastada'],
+            automated: ['Corrección objetiva', 'Generación de fichas', 'Seguimiento de asistencia', 'Analíticas de aprendizaje básicas'],
+            skills: ['Comunicación', 'Creatividad didáctica', 'Empatía']
+          },
+          'finanzas': {
+            critical: ['Relación con clientes clave', 'Interpretación de riesgo', 'Negociación', 'Cumplimiento normativo', 'Toma de decisiones en crisis', 'Diseño de carteras'],
+            automated: ['Reconciliaciones', 'Reportes periódicos', 'Screening cuantitativo', 'Backtesting repetitivo', 'Cumplimiento rutinario'],
+            skills: ['Modelado financiero', 'Gestión del riesgo', 'Comunicación ejecutiva']
+          },
+          'marketing': {
+            critical: ['Estrategia de marca', 'Investigación cualitativa', 'Creatividad narrativa', 'Relación con partners', 'Lectura de insights', 'Priorización de canales'],
+            automated: ['A/B testing masivo', 'Programación de posts', 'Redacción SEO básica', 'Reporting de campañas'],
+            skills: ['Creatividad', 'Análisis', 'Gestión de stakeholders']
+          },
+          'logística': {
+            critical: ['Planificación con restricciones', 'Gestión de incidencias', 'Negociación con proveedores', 'Optimización de rutas complejas', 'Mejora continua', 'Seguridad operativa'],
+            automated: ['Picking repetitivo', 'Seguimiento básico', 'Etiquetado', 'Forecasting estándar', 'Asignaciones rutinarias'],
+            skills: ['Pensamiento operativo', 'Análisis', 'Comunicación']
+          },
+          'derecho': {
+            critical: ['Estrategia procesal', 'Negociación y mediación', 'Redacción argumental compleja', 'Gestión de clientes', 'Interpretación jurisprudencial', 'Ética y confidencialidad', 'Ética/confidencialidad', 'Criterio humano y responsabilidad profesional'],
+            automated: ['Búsqueda jurisprudencial básica', 'Plantillas de contratos', 'Diligencias estándar', 'Revisión de clausulados repetitivos'],
+            skills: ['Argumentación', 'Comunicación persuasiva', 'Gestión del tiempo']
+          },
+          'ingeniería': {
+            critical: ['Diseño conceptual', 'Análisis de trade-offs', 'Validación experimental', 'Gestión de requisitos', 'Seguridad y normativas', 'Comunicación interdisciplinar'],
+            automated: ['Simulaciones rutinarias', 'CAD repetitivo', 'Cálculos estándar', 'Reportes técnicos rutinarios'],
+            skills: ['Modelado', 'Control de calidad', 'Gestión de proyectos']
+          },
+          'construcción': {
+            critical: ['Planificación de obra', 'Coordinación de subcontratas', 'Control de costes', 'Seguridad y PRL', 'Gestión de riesgos', 'Relación con cliente y dirección facultativa', 'Juicio de seguridad en obra'],
+            automated: ['Mediciones estándar', 'Certificaciones rutinarias', 'Reportes de avance', 'Control documental'],
+            skills: ['BIM', 'Gestión', 'Negociación']
+          },
+          'turismo': {
+            critical: ['Atención personalizada', 'Gestión de quejas', 'Coordinación de equipos', 'Diseño de experiencias', 'Upselling ético', 'Resolución de imprevistos'],
+            automated: ['Check-in/out automatizado', 'Gestión de reservas', 'Respuestas FAQs', 'Programación de turnos básica'],
+            skills: ['Idiomas', 'Empatía', 'Organización']
+          },
+          'industria': {
+            critical: ['Diagnóstico de fallos', 'Mejora de procesos', 'Seguridad industrial', 'Coordinación de turnos', 'Toma de decisiones en planta', 'Lean / Kaizen', 'Criterio humano de seguridad'],
+            automated: ['Control de calidad visual', 'Operación de línea repetitiva', 'Planificación estándar', 'Mantenimiento predictivo asistido'],
+            skills: ['Mecatrónica', 'Análisis de datos', 'Gestión de equipos']
+          },
+          'energía': {
+            critical: ['Evaluación técnico-económica', 'Permisos y regulación', 'Gestión de proyectos renovables', 'Integración en red', 'Seguridad', 'Relación con stakeholders públicos'],
+            automated: ['Monitorización SCADA', 'Modelos de producción estándar', 'Mantenimiento preventivo asistido', 'Reporting energético'],
+            skills: ['Regulación', 'Sistemas eléctricos', 'Project finance']
+          },
+          'arte': {
+            critical: ['Dirección creativa', 'Estilo propio', 'Narrativa visual', 'Relación con clientes', 'Criterio editorial', 'Toma de decisiones ambigua'],
+            automated: ['Variantes gráficas', 'Edición básica', 'Transcodificación', 'Plantillas y layouts'],
+            skills: ['Creatividad', 'Storytelling', 'Curaduría']
+          }
+        };
+
+        const jobKeywordTweaks = [
+          { match: /aeroespacial|espacial/i, addCritical: ['Verificación de vuelo', 'Integración hardware-software'], addAuto: ['Telemetría estándar'] },
+          { match: /industrial|procesos/i, addCritical: ['Balance de línea', 'AMFE/FMEA'], addAuto: ['Hojas de proceso'] },
+          { match: /civil|arquitect/i, addCritical: ['Cálculo estructural avanzado', 'Gestión de licencias'], addAuto: ['Planos repetitivos'] },
+          { match: /datos/i, addCritical: ['Definición de métricas', 'Data governance'], addAuto: ['Limpieza rutinaria'] },
+          { match: /abogad|legal|juríd/i, addCritical: ['Estrategia de negociación', 'Alineación negocio‑riesgo'], addAuto: ['Contratos tipo'] },
+          { match: /docent|profesor/i, addCritical: ['Tutoría individual', 'Diseño de rúbricas'], addAuto: ['Corrección tipo test'] },
+          { match: /mantenimiento/i, addCritical: ['Diagnóstico in situ'], addAuto: ['Ordenes repetitivas'] },
+          { match: /recepcionista|agente de viajes/i, addCritical: ['Atención casos especiales'], addAuto: ['Consulta de disponibilidad'] },
+          { match: /periodista|editor/i, addCritical: ['Criterio informativo'], addAuto: ['Resumen de notas de prensa'] }
+        ];
+
+        function clamp(n, lo, hi){ return Math.max(lo, Math.min(hi, n)); }
+        function uniqueSample(arr, k){
+          const copy = [...arr];
+          const out = [];
+          while (copy.length && out.length < k){
+            const i = Math.floor(Math.random()*copy.length);
+            out.push(copy.splice(i,1)[0]);
+          }
+          return out;
+        }
+
+        function countsFromProbability(p){
+          // Higher automation probability => fewer critical tasks
+          const criticalCount = clamp(Math.round(6 - (p/18)), 2, 7);
+          const automatedCount = clamp(Math.round(3 + (p/14)), 3, 9); // 10%->4, 60%->7, 90%->8
+          return { criticalCount, automatedCount };
+        }
+
+        function getSectorKey(job){
+          // job.sector already maps to our pools, but normalize some variants
+          const map = {
+            'arte, medios y comunicación':'arte',
+            'energía y medio ambiente':'energía',
+            'industria y manufactura':'industria',
+            'hostelería y turismo':'turismo',
+          };
+          const s = (job.sector || '').toLowerCase();
+          return map[s] || s;
+        }
+
+        function getPersonalizedDetails(job){
+          const sectorKey = getSectorKey(job);
+          const base = taskPools[sectorKey] || {critical:[], automated:[], skills:[]};
+          let criticalPool = [...base.critical];
+          let autoPool = [...base.automated];
+          let skills = [...base.skills];
+
+          // Keyword tweaks by job name
+          jobKeywordTweaks.forEach(t => {
+            if (t.match.test(job.name)){
+              if (t.addCritical) criticalPool = criticalPool.concat(t.addCritical);
+              if (t.addAuto) autoPool = autoPool.concat(t.addAuto);
+            }
+          });
+
+          // Counts scale with automation probability
+          const { criticalCount, automatedCount } = countsFromProbability(job.probability);
+
+          // Description template per sector (short)
+          const sectorDesc = {
+            'tecnología': 'Rol técnico con impacto de negocio, equilibrio entre diseño, entrega y coordinación.',
+            'salud': 'Atención directa y decisiones clínicas donde el juicio humano es clave.',
+            'educación': 'Docencia y acompañamiento con adaptación al contexto del alumno.',
+            'finanzas': 'Decisiones de riesgo, cumplimiento y relación con clientes de alto valor.',
+            'marketing': 'Estrategia, creatividad y lectura de insights más allá de lo cuantitativo.',
+            'logística': 'Operaciones con restricciones reales y resolución de incidencias.',
+            'derecho': 'Estrategia jurídica y negociación con alto componente humano.',
+            'ingeniería': 'Diseño y validación técnica con seguridad y normativas.',
+            'construcción': 'Planificación de obra y coordinación sobre el terreno.',
+            'turismo': 'Experiencia del cliente y resolución personalizada en tiempo real.',
+            'industria': 'Mejora de procesos y decisiones en planta con foco en seguridad.',
+            'energía': 'Proyectos renovables y regulación con múltiples stakeholders.',
+            'arte': 'Dirección creativa y criterio editorial/originalidad.'
+          };
+
+          // Sample tasks
+          const criticalTasks = uniqueSample(criticalPool, criticalCount);
+          const automatedTasks = uniqueSample(autoPool, automatedCount);
+
+          return {
+            description: sectorDesc[sectorKey] || '',
+            criticalTasks,
+            automatedTasks,
+            skills
+          };
+        }
+
+</script>
+</body>
